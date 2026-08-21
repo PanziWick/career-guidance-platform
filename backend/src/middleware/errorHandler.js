@@ -29,6 +29,8 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'ValidationError') error = handleValidationError(err);
   if (err.name === 'CastError') error = handleCastError(err);
   if (err.code === 11000) error = handleDuplicateKeyError(err);
+  if (err.name === 'JsonWebTokenError') error = new AppError('Invalid token', 401);
+  if (err.name === 'TokenExpiredError') error = new AppError('Token has expired', 401);
 
   const statusCode = error.statusCode || 500;
   const response = {

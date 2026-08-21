@@ -33,6 +33,8 @@ const academicProfileSchema = new mongoose.Schema(
       type: Number,
     },
     interests: [String],
+    careerPreferences: [String],
+    existingSkills: [String],
   },
   { timestamps: true }
 );

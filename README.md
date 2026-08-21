@@ -6,7 +6,8 @@ AI-Powered Career Guidance and Academic Pathway Recommendation Platform for Sri 
 
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose ODM)
-- **Security**: Helmet, CORS
+- **Authentication**: JWT, bcryptjs
+- **Security**: Helmet, CORS, express-rate-limit
 
 ## Project Structure
 
@@ -16,12 +17,12 @@ career-guidance-platform/
 ├── backend/           # Express API server
 │   ├── src/
 │   │   ├── config/    # Database configuration
-│   │   ├── controllers/
-│   │   ├── middleware/ # Error handling
+│   │   ├── controllers/ # Route handlers
+│   │   ├── middleware/ # Auth, error handling
 │   │   ├── models/    # Mongoose schemas
 │   │   ├── routes/    # API route modules
 │   │   ├── services/
-│   │   ├── utils/     # Utilities (AppError)
+│   │   ├── utils/     # Utilities (AppError, JWT)
 │   │   └── app.js     # Express app setup
 │   ├── scripts/       # Seed and utility scripts
 │   ├── server.js      # Entry point
@@ -58,6 +59,8 @@ cp .env.example .env
 | `PORT` | Server port | `5000` |
 | `NODE_ENV` | Environment | `development` |
 | `CORS_ORIGIN` | Allowed frontend origin | `http://localhost:3000` |
+| `JWT_SECRET` | Secret key for signing JWTs | — |
+| `JWT_EXPIRES_IN` | Token expiry duration | `7d` |
 
 ### Start the Server
 
@@ -87,13 +90,52 @@ Re-running the seed command is safe — existing records are updated, not duplic
 GET /api/health
 ```
 
-Response:
+### Authentication
 
-```json
+All protected endpoints require the `Authorization` header:
+
+```
+Authorization: Bearer <token>
+```
+
+#### Register
+
+```
+POST /api/auth/register
+Content-Type: application/json
+
 {
-  "success": true,
-  "message": "Career Guidance API is running"
+  "firstName": "Panzi",
+  "lastName": "Wick",
+  "email": "panzi@example.com",
+  "password": "securepass123"
 }
+```
+
+#### Login
+
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "panzi@example.com",
+  "password": "securepass123"
+}
+```
+
+### Student Profile
+
+```
+GET  /api/students/me           # Get own profile
+PUT  /api/students/me           # Update own profile (firstName, lastName)
+```
+
+### Academic Profile
+
+```
+GET  /api/academic-profile/me   # Get own academic profile
+PUT  /api/academic-profile/me   # Update (interests, careerPreferences, existingSkills)
 ```
 
 ### Available Route Prefixes
@@ -101,9 +143,9 @@ Response:
 | Route | Status |
 |-------|--------|
 | `/api/health` | Active |
-| `/api/auth` | Planned |
-| `/api/students` | Planned |
-| `/api/academic-profile` | Planned |
+| `/api/auth` | Active |
+| `/api/students` | Active |
+| `/api/academic-profile` | Active |
 | `/api/universities` | Planned |
 | `/api/degrees` | Planned |
 | `/api/recommendations` | Planned |

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const academicProfileSchema = new mongoose.Schema(
   {
+    // One profile per student — enforced at DB level
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -16,6 +17,7 @@ const academicProfileSchema = new mongoose.Schema(
       type: String,
       ref: 'SubjectCombination',
     },
+    // Map of subject → grade (e.g. { "Mathematics": "A", "English": "B" })
     olResults: {
       type: Map,
       of: String,

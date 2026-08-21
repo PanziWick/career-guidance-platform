@@ -24,11 +24,13 @@ function readSheet(workbook, sheetName) {
   return XLSX.utils.sheet_to_json(sheet, { defval: '' });
 }
 
+// Excel files often include a BOM (byte-order mark) character at the start of headers
 function cleanBOM(str) {
   if (typeof str !== 'string') return str;
   return str.replace(/^\uFEFF/, '').trim();
 }
 
+// Case-insensitive column lookup — handles inconsistent header casing across Excel sheets
 function getVal(row, ...keys) {
   for (const key of keys) {
     const found = Object.keys(row).find(
@@ -39,6 +41,7 @@ function getVal(row, ...keys) {
   return undefined;
 }
 
+// Uses updateOne with upsert:true so re-running the seed updates existing records instead of duplicating
 async function upsertMany(Model, records, keyField, label) {
   let inserted = 0;
   let updated = 0;
@@ -46,6 +49,7 @@ async function upsertMany(Model, records, keyField, label) {
 
   for (const record of records) {
     try {
+      // Build filter from keyField — supports compound keys (e.g. CareerMapping uses [degreeId, careerId])
       const filter = {};
       if (typeof keyField === 'string') {
         filter[keyField] = record[keyField];

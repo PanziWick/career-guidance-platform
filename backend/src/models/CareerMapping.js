@@ -20,6 +20,7 @@ const careerMappingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Compound index — one degree can map to one career only once
 careerMappingSchema.index({ degreeId: 1, careerId: 1 }, { unique: true });
 
 module.exports = mongoose.model('CareerMapping', careerMappingSchema);

@@ -10,6 +10,7 @@ const connectDB = async () => {
 
   try {
     const conn = await mongoose.connect(mongoUri);
+    // Log host only — not the full URI, to avoid leaking credentials
     console.log(`MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`);

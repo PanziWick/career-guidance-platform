@@ -1,5 +1,7 @@
 const skillService = require('../services/skillService');
 
+const skillGapService = require('../services/skillGapService');
+
 const listSkills = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
@@ -28,7 +30,29 @@ const getSkill = async (req, res, next) => {
   }
 };
 
+const analyzeGap = async (req, res, next) => {
+  try {
+    const { recommendationId, targetCareerId } = req.body;
+    
+    if (!recommendationId) {
+      const error = new Error('Recommendation ID is required');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const gapAnalysis = await skillGapService.analyzeGap(req.user.userId, recommendationId, targetCareerId);
+    
+    res.status(200).json({
+      success: true,
+      data: { gapAnalysis },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   listSkills,
   getSkill,
+  analyzeGap,
 };

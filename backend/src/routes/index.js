@@ -11,6 +11,8 @@ const recommendationRoutes = require('./recommendations');
 const skillRoutes = require('./skills');
 const roadmapRoutes = require('./roadmaps');
 const adminRoutes = require('./admin');
+const careerRoutes = require('./careers');
+const subjectCombinationRoutes = require('./subjectCombinations');
 
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
@@ -22,5 +24,7 @@ router.use('/recommendations', recommendationRoutes);
 router.use('/skills', skillRoutes);
 router.use('/roadmaps', roadmapRoutes);
 router.use('/admin', adminRoutes);
+router.use('/careers', careerRoutes);
+router.use('/subject-combinations', subjectCombinationRoutes);
 
 module.exports = router;

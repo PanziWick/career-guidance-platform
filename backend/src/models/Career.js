@@ -17,6 +17,12 @@ const careerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    requiredSkills: [
+      {
+        type: String,
+        ref: 'Skill',
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -195,6 +195,33 @@ const generateRecommendations = async (userId) => {
   // Limit to top 10
   const rankedResults = scoredDegrees.slice(0, 10);
 
+  const degreeCareerIdsMap = {};
+  careerMappingsData.forEach(mapping => {
+    if (!degreeCareerIdsMap[mapping.degreeId]) {
+      degreeCareerIdsMap[mapping.degreeId] = [];
+    }
+    if (!degreeCareerIdsMap[mapping.degreeId].includes(mapping.careerId)) {
+      degreeCareerIdsMap[mapping.degreeId].push(mapping.careerId);
+    }
+  });
+
+  const uniqueCareerIds = new Set();
+  const recommendedCareers = [];
+  
+  for (const r of rankedResults) {
+    const cIds = degreeCareerIdsMap[r.degreeRef] || [];
+    for (const cid of cIds) {
+      if (!uniqueCareerIds.has(cid)) {
+        uniqueCareerIds.add(cid);
+        recommendedCareers.push({
+          careerId: cid,
+          score: r.score,
+          reason: `Mapped from recommended degree: ${r.name}`
+        });
+      }
+    }
+  }
+
   // Persist Recommendation
   const recommendation = new Recommendation({
     userId,
@@ -203,7 +230,7 @@ const generateRecommendations = async (userId) => {
       score: r.score,
       reason: r.reason
     })),
-    recommendedCareers: [], 
+    recommendedCareers,
     appliedRules: appliedRuleIds.map(ruleId => ({ ruleId }))
   });
 

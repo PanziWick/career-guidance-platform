@@ -40,7 +40,7 @@ const analyzeGap = async (req, res, next) => {
       throw error;
     }
 
-    const gapAnalysis = await skillGapService.analyzeGap(req.user.userId, recommendationId, targetCareerId);
+    const gapAnalysis = await skillGapService.analyzeGap(req.user._id, recommendationId, targetCareerId);
     
     res.status(200).json({
       success: true,

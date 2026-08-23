@@ -10,7 +10,7 @@ const generateRoadmap = async (req, res, next) => {
       throw error;
     }
 
-    const roadmap = await roadmapService.generateRoadmap(req.user.userId, recommendationId, targetCareerId);
+    const roadmap = await roadmapService.generateRoadmap(req.user._id, recommendationId, targetCareerId);
     
     res.status(201).json({
       success: true,
@@ -23,7 +23,7 @@ const generateRoadmap = async (req, res, next) => {
 
 const getRoadmaps = async (req, res, next) => {
   try {
-    const roadmaps = await roadmapService.getRoadmaps(req.user.userId);
+    const roadmaps = await roadmapService.getRoadmaps(req.user._id);
     
     res.status(200).json({
       success: true,

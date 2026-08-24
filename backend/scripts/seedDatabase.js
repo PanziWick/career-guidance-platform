@@ -12,6 +12,7 @@ const Career = require('../src/models/Career');
 const Skill = require('../src/models/Skill');
 const CareerMapping = require('../src/models/CareerMapping');
 const RecommendationRule = require('../src/models/RecommendationRule');
+const LearningResource = require('../src/models/LearningResource');
 
 const DATASET_PATH = path.resolve(__dirname, '../../dataset/GuidanceDataset.xlsx');
 
@@ -159,6 +160,66 @@ async function seedRecommendationRules(workbook) {
   return upsertMany(RecommendationRule, records, 'ruleId', 'Recommendation Rules');
 }
 
+async function seedCareerSkills(workbook) {
+  const rows = readSheet(workbook, 'Career Skills');
+  const careerSkillMap = {};
+  
+  rows.forEach(row => {
+    const cid = getVal(row, 'CareerID');
+    const sid = getVal(row, 'SkillID');
+    if (cid && sid) {
+      if (!careerSkillMap[cid]) careerSkillMap[cid] = [];
+      careerSkillMap[cid].push(sid);
+    }
+  });
+
+  const skills = await Skill.find({});
+  const skillIdMap = {};
+  skills.forEach(s => skillIdMap[s.skillId] = s._id);
+
+  let updated = 0;
+  let errors = 0;
+
+  for (const [careerId, skillIds] of Object.entries(careerSkillMap)) {
+    try {
+      const internalIds = skillIds.map(sid => skillIdMap[sid]).filter(id => id);
+      const result = await Career.updateOne(
+        { careerId },
+        { $set: { requiredSkills: internalIds } }
+      );
+      if (result.modifiedCount > 0) updated++;
+    } catch (err) {
+      errors++;
+      console.error(`  Error in Career Skills for ${careerId}: ${err.message}`);
+    }
+  }
+
+  console.log(`  Career Skills mappings processed for ${Object.keys(careerSkillMap).length} careers (${updated} updated, ${errors} errors)`);
+}
+
+async function seedLearningResources(workbook) {
+  const rows = readSheet(workbook, 'Learning Resources');
+  if (rows.length === 0) return;
+
+  const skills = await Skill.find({});
+  const skillIdMap = {};
+  skills.forEach(s => skillIdMap[s.skillId] = s._id);
+
+  const records = rows.map((row) => ({
+    resourceId: getVal(row, 'ResourceID'),
+    skillId: skillIdMap[getVal(row, 'SkillID')],
+    title: getVal(row, 'Title'),
+    provider: getVal(row, 'Provider'),
+    url: getVal(row, 'URL'),
+    type: getVal(row, 'Type'),
+    level: getVal(row, 'Level'),
+    access: getVal(row, 'Access'),
+    duration: getVal(row, 'Duration'),
+  })).filter(r => r.skillId); // only keep resources mapped to existing skills
+
+  return upsertMany(LearningResource, records, 'resourceId', 'Learning Resources');
+}
+
 async function seed() {
   console.log('Starting database seed...\n');
 
@@ -174,7 +235,9 @@ async function seed() {
   await seedCareers(workbook);
   await seedSkills(workbook);
   await seedCareerMappings(workbook);
+  await seedCareerSkills(workbook);
   await seedRecommendationRules(workbook);
+  await seedLearningResources(workbook);
 
   console.log('\nVerifying record counts...');
   const counts = {

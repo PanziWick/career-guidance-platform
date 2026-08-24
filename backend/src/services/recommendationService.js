@@ -30,6 +30,71 @@ const RULE_TO_DEGREE_MAPPING = {
   'Bachelor of Fine Arts (Art & Design)': ['Design'],
 };
 
+// Controlled normalisation mapping to bridge user inputs with seeded dataset terminologies
+const ALIASES = {
+  // Subject Aliases
+  'econ': ['economics'],
+  'economics': ['econ'],
+  'english': ['english literature', 'general english'],
+  'english literature': ['english'],
+  'ict': ['information and communication technology', 'information technology'],
+  'art': ['artdesign', 'design', 'creative design', 'fine arts'],
+  'artdesign': ['art', 'design'],
+  
+  // Interest & Category Aliases
+  'coding': ['technology', 'computing', 'information systems', 'it'],
+  'web development': ['technology', 'computing', 'information systems'],
+  'software': ['technology', 'computing'],
+  'writing': ['mass media', 'journalism', 'language education', 'translation'],
+  'public speaking': ['law', 'judiciarylaw', 'diplomacy'],
+  'research': ['data analysis', 'business', 'social science'],
+  'design': ['creative design', 'fine arts', 'aesthetic'],
+  'history': ['religious studies', 'diplomacy'],
+  
+  // Career Aliases
+  'journalist': ['content creatorfilm producer'],
+  'teacher': ['lecturer', 'education'],
+  'lawyer': ['lawyerattorneyatlaw'],
+  'graphic designer': ['uxui designer'],
+  'psychologist': ['social worker']
+};
+
+/**
+ * Normalises a string for deterministic matching (lowercase, trims, removes punctuation).
+ */
+const normaliseToken = (str) => {
+  if (!str) return '';
+  return str.toLowerCase().replace(/[^\w\s]/g, '').trim();
+};
+
+/**
+ * Normalises and splits a comma-separated or slash-separated string into discrete tokens.
+ */
+const extractTokens = (str) => {
+  if (!str) return [];
+  return str.split(/[,/]| and /i).map(s => normaliseToken(s)).filter(Boolean);
+};
+
+/**
+ * Checks if an input string semantically matches a target string using controlled aliases.
+ * No loose substring matching allowed (except exact matches or explicit aliases).
+ */
+const isDeterministicMatch = (input, target) => {
+  const normInput = normaliseToken(input);
+  const normTarget = normaliseToken(target);
+  
+  if (normInput === normTarget) return true;
+  
+  const inputAliases = ALIASES[normInput] || [];
+  if (inputAliases.includes(normTarget)) return true;
+  
+  const targetAliases = ALIASES[normTarget] || [];
+  if (targetAliases.includes(normInput)) return true;
+  
+  return false;
+};
+
+
 /**
  * Checks if the student meets the minimum requirement of the degree.
  */
@@ -62,14 +127,14 @@ const isEligible = (profile, degree) => {
  * Checks if a rule applies to the student profile.
  */
 const isRuleActive = (rule, profile) => {
-  // Check if any of the student's A/L subjects appear in the rule's subjects text
+  const ruleSubjects = extractTokens(rule.subjects);
   const subjectMatches = profile.alResults.some((res) => 
-    rule.subjects.toLowerCase().includes(res.subject.toLowerCase())
+    ruleSubjects.some(ruleSub => isDeterministicMatch(res.subject, ruleSub))
   );
   
-  // Check if any of the student's interests appear in the rule's interest text
+  const ruleInterests = extractTokens(rule.interest);
   const interestMatches = profile.interests.some((interest) => 
-    rule.interest.toLowerCase().includes(interest.toLowerCase())
+    ruleInterests.some(ruleInt => isDeterministicMatch(interest, ruleInt))
   );
 
   return subjectMatches && interestMatches;
@@ -150,7 +215,7 @@ const generateRecommendations = async (userId) => {
     // 2. Career Preference Match
     const mappedCareers = degreeCareerMap[degree.degreeId] || [];
     const hasCareerMatch = profile.careerPreferences.some(pref => 
-      mappedCareers.some(c => c.toLowerCase() === pref.toLowerCase())
+      mappedCareers.some(c => isDeterministicMatch(pref, c))
     );
     
     if (hasCareerMatch) {
@@ -160,8 +225,9 @@ const generateRecommendations = async (userId) => {
 
     // 3. Interest Category Match
     if (degree.category) {
+      const degreeCategories = extractTokens(degree.category);
       const hasCategoryMatch = profile.interests.some(interest => 
-        degree.category.toLowerCase().includes(interest.toLowerCase())
+        degreeCategories.some(cat => isDeterministicMatch(interest, cat))
       );
       if (hasCategoryMatch) {
         score += SCORE_WEIGHTS.INTEREST_CATEGORY_MATCH;
@@ -172,6 +238,13 @@ const generateRecommendations = async (userId) => {
     // Constraints check: Do not invent skill points since we have no skill-degree mapping data.
     
     if (score > 0) {
+      const cIds = [];
+      careerMappingsData.forEach(mapping => {
+        if (mapping.degreeId === degree.degreeId && !cIds.includes(mapping.careerId)) {
+          cIds.push(mapping.careerId);
+        }
+      });
+      
       scoredDegrees.push({
         degreeId: degree._id, // internal ObjectId for Recommendation model
         degreeRef: degree.degreeId, // string ID
@@ -179,7 +252,8 @@ const generateRecommendations = async (userId) => {
         university: universityMap[degree.universityId] || 'Unknown University',
         type: degree.type,
         score,
-        reason: reasons.join('. ') + '.'
+        reason: reasons.join('. ') + '.',
+        careers: cIds
       });
     }
   }

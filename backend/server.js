@@ -1,4 +1,4 @@
-require('dotenv').config({ override: true });
+require('dotenv').config({ override: true }); // trigger restart
 
 const app = require('./src/app');
 const connectDB = require('./src/config/db');

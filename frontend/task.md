@@ -1,0 +1,27 @@
+# Tasks
+
+- [x] Setup Frontend Project
+    - [x] Initialize Vite React project in `frontend/`
+    - [x] Install dependencies (`react-router-dom`)
+    - [x] Install testing dependencies (`vitest`, `@testing-library/react`, `jsdom`, `@testing-library/jest-dom`)
+    - [x] Setup Vitest config and test script
+- [x] Core Setup
+    - [x] Setup `import.meta.env.VITE_API_BASE_URL`
+    - [x] Implement central API client (`src/api/client.js`)
+    - [x] Implement Auth Context (`src/context/AuthContext.jsx`)
+    - [x] Setup React Router structure (`src/App.jsx`, `ProtectedRoute`)
+- [x] UI/UX Design System
+    - [x] Implement `index.css` with premium glassmorphic variables and utilities
+    - [x] Create `Layout` component with sidebar/navbar
+- [x] Implement Pages
+    - [x] Registration Page (`/register`)
+    - [x] Login Page (`/login`)
+    - [x] Dashboard Home (`/dashboard`)
+    - [x] Academic Profile Page (`/profile`)
+    - [x] Recommendations Page (`/recommendations`)
+    - [x] Skill Gap Analysis Page (`/skill-gap`)
+    - [x] Learning Roadmap Page (`/roadmap`)
+- [x] Testing & Verification
+    - [x] Write and run frontend tests
+    - [x] Run backend regression tests
+    - [x] Manual end-to-end verification

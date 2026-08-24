@@ -1,4 +1,6 @@
 const LearningRoadmap = require('../models/LearningRoadmap');
+const LearningResource = require('../models/LearningResource');
+const Skill = require('../models/Skill');
 const skillGapService = require('./skillGapService');
 
 /**
@@ -31,12 +33,43 @@ const generateRoadmap = async (userId, recommendationId, targetCareerId) => {
     targetLevel: 'intermediate',
   }));
 
-  const milestones = gapResult.missingSkills.map((skill, index) => ({
-    title: `Develop Skill: ${skill.name}`,
-    description: `Acquire proficiency in ${skill.name}. Specific learning resource mapping is unavailable in the current dataset.`,
-    order: index + 1,
-    isCompleted: false,
-  }));
+  // Fetch resources for the missing skills
+  const missingSkillIds = gapResult.missingSkills.map(s => s.skillId); // These are string IDs like S004
+  const skillsInDb = await Skill.find({ skillId: { $in: missingSkillIds } });
+  const internalSkillIds = skillsInDb.map(s => s._id);
+
+  const learningResources = await LearningResource.find({ skillId: { $in: internalSkillIds } });
+
+  // Map resources by string skillId for easy lookup
+  const resourcesMap = {};
+  for (const skill of skillsInDb) {
+    resourcesMap[skill.skillId] = learningResources.filter(
+      r => r.skillId.toString() === skill._id.toString()
+    ).map(r => ({
+      title: r.title,
+      url: r.url,
+      provider: r.provider,
+      type: r.type,
+      level: r.level,
+      access: r.access,
+      duration: r.duration
+    }));
+  }
+
+  const milestones = gapResult.missingSkills.map((skill, index) => {
+    const resources = resourcesMap[skill.skillId] || [];
+    
+    return {
+      title: `Develop Skill: ${skill.name}`,
+      description: resources.length > 0
+        ? `Acquire proficiency in ${skill.name}. Use the recommended verified learning resources.`
+        : `Acquire proficiency in ${skill.name}. Specific learning resource mapping is unavailable in the current dataset.`,
+      order: index + 1,
+      isCompleted: false,
+      unavailableResources: resources.length === 0,
+      resources
+    };
+  });
 
   // 4. Save to the database
   const newRoadmap = new LearningRoadmap({

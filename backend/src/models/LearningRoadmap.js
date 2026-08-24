@@ -21,6 +21,18 @@ const learningRoadmapSchema = new mongoose.Schema(
         description: String,
         order: Number,
         isCompleted: { type: Boolean, default: false },
+        unavailableResources: { type: Boolean, default: false },
+        resources: [
+          {
+            title: String,
+            url: String,
+            provider: String,
+            type: { type: String },
+            level: String,
+            access: String,
+            duration: String,
+          }
+        ],
       },
     ],
     skills: [

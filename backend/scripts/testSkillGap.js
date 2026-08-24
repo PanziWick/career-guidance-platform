@@ -44,35 +44,27 @@ const runTests = async () => {
     profile.existingSkills = ['Communication', 'programming']; // case and space will test normalization
     await profile.save();
 
+    // Pick a career to test that we know has seeded skills (C001 : Software Engineer)
+    const testCareer = await Career.findOne({ careerId: 'C001' });
+    if (!testCareer || !testCareer.requiredSkills || testCareer.requiredSkills.length === 0) {
+      throw new Error('Seeded career data is missing or requiredSkills are empty. Did you run the seed script?');
+    }
+
     // Ensure we have a recommendation for this user
     let recommendation = await Recommendation.findOne({ userId: user._id });
     if (!recommendation) {
-      // Create a dummy recommendation if not exists
-      const career = await Career.findOne();
       recommendation = new Recommendation({
         userId: user._id,
-        recommendedCareers: [{ careerId: career.careerId, score: 90, reason: 'Test' }]
+        recommendedCareers: [{ careerId: testCareer.careerId, score: 90, reason: 'Test' }]
       });
       await recommendation.save();
-    } else if (!recommendation.recommendedCareers || recommendation.recommendedCareers.length === 0) {
-      const career = await Career.findOne();
-      recommendation.recommendedCareers = [{ careerId: career.careerId, score: 90, reason: 'Test' }];
+    } else {
+      recommendation.recommendedCareers = [{ careerId: testCareer.careerId, score: 90, reason: 'Test' }];
       await recommendation.save();
     }
-    const targetCareerId = recommendation.recommendedCareers[0].careerId;
-    
-    // Add requiredSkills to the career for testing partial match
-    const careerObj = await Career.findOne({ careerId: targetCareerId });
-    const s1 = await Skill.findOne({ name: 'Communication' });
-    const s2 = await Skill.findOne({ name: 'Leadership' });
-    
-    if (s1 && s2) {
-      careerObj.requiredSkills = [s1._id, s2._id];
-      await careerObj.save();
-    }
+    const targetCareerId = testCareer.careerId;
 
     // --- Test 1: Cross-student access rejection (Mocking auth logic) ---
-    // skillGapService takes userId. Passing a wrong user ID to a recommendation belonging to someone else
     const fakeUserId = new mongoose.Types.ObjectId();
     try {
       await skillGapService.analyzeGap(fakeUserId, recommendation._id, targetCareerId);
@@ -81,29 +73,37 @@ const runTests = async () => {
       assert('Cross-student access rejected', err.statusCode === 404);
     }
 
-    // --- Test 2: Skill matching logic (Partial match) ---
+    // --- Test 2: Skill matching logic using actual production dataset ---
+    // C001 requires: Programming, Database Management, Problem Solving, Critical Thinking, Teamwork (5 skills)
+    // Student has: Communication, programming (1 match)
     const gapResult = await skillGapService.analyzeGap(user._id, recommendation._id, targetCareerId);
     assert('Analyzed gap successfully', gapResult.status === 'success');
-    assert('Correct match count', gapResult.matchCount === 1);
-    assert('Correct missing count', gapResult.missingCount === 1);
-    assert('Completion percentage is 50%', gapResult.completionPercentage === 50);
+    assert('Correct match count (1 matching skill)', gapResult.matchCount === 1);
+    assert('Correct missing count (4 missing skills)', gapResult.missingCount === 4);
+    assert('Completion percentage is 20%', gapResult.completionPercentage === 20);
 
-    // --- Test 3: Deterministic Roadmap Generation ---
+    // --- Test 3: Deterministic Roadmap Generation with Resources ---
     const roadmap = await roadmapService.generateRoadmap(user._id, recommendation._id, targetCareerId);
-    assert('Roadmap generated from missing skills', roadmap.skills.length === 1);
-    assert('Roadmap has milestones', roadmap.milestones.length === 1);
-    assert('Roadmap skill is Leadership', roadmap.skills[0].name === 'Leadership');
+    assert('Roadmap generated from missing skills', roadmap.skills.length === 4);
+    assert('Roadmap has milestones for missing skills', roadmap.milestones.length === 4);
     assert('Roadmap target level is intermediate', roadmap.skills[0].targetLevel === 'intermediate');
+    // S001 (Communication) is missing? Actually C001 (Software Engineer) needs:
+    // Programming (S004), Database Management (S005), Problem Solving (S008), Critical Thinking (S002), Teamwork (S009)
+    // User has 'programming', so missing: Database Management, Problem Solving, Critical Thinking, Teamwork.
+    // ALL of these skills now have verified resources mapped!
+    const allHaveResources = roadmap.milestones.every(m => m.resources && m.resources.length > 0 && !m.unavailableResources);
+    assert('Roadmap mapped verified learning resources to ALL applicable skills', allHaveResources);
 
     // --- Test 4: Retrieve Roadmap ---
     const roadmaps = await roadmapService.getRoadmaps(user._id);
     assert('Roadmap retrieved successfully', roadmaps.length > 0);
     assert('Roadmap history preserved', roadmaps.some(r => r._id.toString() === roadmap._id.toString()));
 
-    // --- Test 5: Unavailable mapping (Zero required skills) ---
-    // clear required skills
-    careerObj.requiredSkills = [];
-    await careerObj.save();
+    // --- Test 5: Unavailable mapping (Isolation Test for zero required skills) ---
+    // Temporarily clear required skills from the DB to test the boundary condition
+    const originalSkills = testCareer.requiredSkills;
+    testCareer.requiredSkills = [];
+    await testCareer.save();
 
     const unavailableGap = await skillGapService.analyzeGap(user._id, recommendation._id, targetCareerId);
     assert('Unavailable mapping handled', unavailableGap.status === 'unavailable');
@@ -117,28 +117,14 @@ const runTests = async () => {
       assert('Roadmap generation handles unavailable mapping', err.statusCode === 400);
     }
 
+    // Restore the production dataset
+    testCareer.requiredSkills = originalSkills;
+    await testCareer.save();
+
     console.log('\n--- All Skill Gap & Roadmap Tests Passed ---');
   } catch (error) {
     console.error('\nTest failed:', error);
   } finally {
-    try {
-      // 6. Cleanup: Ensure we revert any changes to the authoritative seeded dataset
-      // We modified the Career object to test partial matching, so we must remove it.
-      const user = await User.findOne({ role: 'student' });
-      if (user) {
-        const recommendation = await Recommendation.findOne({ userId: user._id });
-        if (recommendation && recommendation.recommendedCareers && recommendation.recommendedCareers.length > 0) {
-          const targetCareerId = recommendation.recommendedCareers[0].careerId;
-          const careerObj = await Career.findOne({ careerId: targetCareerId });
-          if (careerObj) {
-            careerObj.requiredSkills = [];
-            await careerObj.save();
-          }
-        }
-      }
-    } catch (cleanupErr) {
-      console.error('Cleanup failed:', cleanupErr);
-    }
     mongoose.connection.close();
   }
 };

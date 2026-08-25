@@ -319,7 +319,54 @@ const generateRecommendations = async (userId) => {
 
 const getHistory = async (userId) => {
   const history = await Recommendation.find({ userId }).sort({ generatedAt: -1 }).lean();
-  return history;
+  
+  if (!history.length) return history;
+
+  const degrees = await DegreeProgramme.find({});
+  const universities = await University.find({});
+  const careerMappingsData = await mongoose.model('CareerMapping').find({});
+
+  const universityMap = {};
+  universities.forEach(u => {
+    universityMap[u.universityId] = u.name;
+  });
+
+  const degreeMap = {};
+  degrees.forEach(d => {
+    degreeMap[d.degreeId] = d;
+  });
+
+  const degreeCareerIdsMap = {};
+  careerMappingsData.forEach(mapping => {
+    if (!degreeCareerIdsMap[mapping.degreeId]) {
+      degreeCareerIdsMap[mapping.degreeId] = [];
+    }
+    if (!degreeCareerIdsMap[mapping.degreeId].includes(mapping.careerId)) {
+      degreeCareerIdsMap[mapping.degreeId].push(mapping.careerId);
+    }
+  });
+
+  return history.map(rec => {
+    const results = (rec.recommendedDegrees || []).map(rd => {
+      const degree = degreeMap[rd.degreeId];
+      if (!degree) return null;
+      return {
+        degreeId: degree._id,
+        degreeRef: degree.degreeId,
+        name: degree.name,
+        university: universityMap[degree.universityId] || 'Unknown University',
+        type: degree.type,
+        score: rd.score,
+        reason: rd.reason,
+        careers: degreeCareerIdsMap[degree.degreeId] || []
+      };
+    }).filter(Boolean);
+
+    return {
+      ...rec,
+      results
+    };
+  });
 };
 
 module.exports = {

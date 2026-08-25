@@ -10,12 +10,15 @@ const AcademicProfile = () => {
   const [profile, setProfile] = useState(null);
   
   const [interestsList] = useState(['Writing', 'Public Speaking', 'Research', 'Art', 'Design', 'History']);
-  const [skillsList] = useState(['Communication', 'Critical Thinking', 'Creativity', 'Leadership']);
-  const [careersList] = useState(['Journalist', 'Teacher', 'Lawyer', 'Graphic Designer', 'Psychologist']);
+  const [skillsList, setSkillsList] = useState(['Communication', 'Critical Thinking', 'Creativity', 'Leadership']);
+  const [careersList, setCareersList] = useState(['Journalist', 'Teacher', 'Lawyer', 'Graphic Designer', 'Psychologist']);
 
   const [interestInput, setInterestInput] = useState('');
   const [skillInput, setSkillInput] = useState('');
   const [careerInput, setCareerInput] = useState('');
+
+  const [showSkillDropdown, setShowSkillDropdown] = useState(false);
+  const [showCareerDropdown, setShowCareerDropdown] = useState(false);
 
   // We need combinations list to map subjectCombinationId if they use it.
   const [combinations, setCombinations] = useState([]);
@@ -23,9 +26,11 @@ const AcademicProfile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileRes, combosRes] = await Promise.all([
+        const [profileRes, combosRes, skillsRes, careersRes] = await Promise.all([
           apiClient.get('/academic-profile/me'),
-          apiClient.get('/subject-combinations?stream=Arts')
+          apiClient.get('/subject-combinations?stream=Arts'),
+          apiClient.get('/skills?limit=100').catch(() => null),
+          apiClient.get('/careers?limit=100').catch(() => null)
         ]);
         
         const data = profileRes.data.profile;
@@ -38,6 +43,13 @@ const AcademicProfile = () => {
         
         setProfile(data);
         setCombinations(combosRes.data || []);
+        
+        if (skillsRes && skillsRes.data) {
+          setSkillsList(skillsRes.data.map(s => s.name));
+        }
+        if (careersRes && careersRes.data) {
+          setCareersList(careersRes.data.map(c => c.name));
+        }
       } catch (err) {
         setError('Failed to load profile data.');
       } finally {
@@ -289,23 +301,53 @@ const AcademicProfile = () => {
                 </span>
               ))}
             </div>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                placeholder="Type a skill and press Enter or Add" 
-                className="form-input flex-1"
-                value={skillInput}
-                onChange={e => setSkillInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && skillInput.trim()) {
-                    e.preventDefault();
-                    if (!profile.existingSkills.includes(skillInput.trim())) {
-                      setProfile({ ...profile, existingSkills: [...profile.existingSkills, skillInput.trim()] });
+            <div className="flex gap-2 relative">
+              <div className="flex-1" style={{ position: 'relative' }}>
+                <input 
+                  type="text" 
+                  placeholder="Type a skill and press Enter or Add" 
+                  className="form-input w-full"
+                  value={skillInput}
+                  onChange={e => {
+                    setSkillInput(e.target.value);
+                    setShowSkillDropdown(true);
+                  }}
+                  onFocus={() => setShowSkillDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSkillDropdown(false), 200)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && skillInput.trim()) {
+                      e.preventDefault();
+                      if (!profile.existingSkills.includes(skillInput.trim())) {
+                        setProfile({ ...profile, existingSkills: [...profile.existingSkills, skillInput.trim()] });
+                      }
+                      setSkillInput('');
+                      setShowSkillDropdown(false);
                     }
-                    setSkillInput('');
-                  }
-                }}
-              />
+                  }}
+                />
+                {showSkillDropdown && skillsList.filter(s => s.toLowerCase().includes(skillInput.toLowerCase()) && !profile.existingSkills.includes(s)).length > 0 && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, maxHeight: '200px', overflowY: 'auto', background: 'rgba(20, 20, 30, 0.95)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.5rem', zIndex: 50, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)', marginTop: '4px' }}>
+                    {skillsList.filter(s => s.toLowerCase().includes(skillInput.toLowerCase()) && !profile.existingSkills.includes(s)).map((skill, index) => (
+                      <div 
+                        key={`skill-drop-${index}`} 
+                        style={{ padding: '0.75rem 1rem', cursor: 'pointer', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background 0.2s', fontSize: '0.875rem' }}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          if (!profile.existingSkills.includes(skill)) {
+                            setProfile({ ...profile, existingSkills: [...profile.existingSkills, skill] });
+                          }
+                          setSkillInput('');
+                          setShowSkillDropdown(false);
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {skill}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button 
                 type="button" 
                 className="btn btn-outline"
@@ -320,7 +362,7 @@ const AcademicProfile = () => {
               </button>
             </div>
             <div className="mt-2 text-muted" style={{ fontSize: '0.75rem' }}>
-              Suggestions: {skillsList.filter(s => !profile.existingSkills.includes(s)).map(s => (
+              Suggestions: {skillsList.filter(s => !profile.existingSkills.includes(s)).slice(0, 5).map(s => (
                 <span key={s} style={{ cursor: 'pointer', marginRight: '8px', textDecoration: 'underline' }} onClick={() => setProfile({ ...profile, existingSkills: [...profile.existingSkills, s] })}>{s}</span>
               ))}
             </div>
@@ -338,23 +380,53 @@ const AcademicProfile = () => {
                 </span>
               ))}
             </div>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                placeholder="Type a career and press Enter or Add" 
-                className="form-input flex-1"
-                value={careerInput}
-                onChange={e => setCareerInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && careerInput.trim()) {
-                    e.preventDefault();
-                    if (!profile.careerPreferences.includes(careerInput.trim())) {
-                      setProfile({ ...profile, careerPreferences: [...profile.careerPreferences, careerInput.trim()] });
+            <div className="flex gap-2 relative">
+              <div className="flex-1" style={{ position: 'relative' }}>
+                <input 
+                  type="text" 
+                  placeholder="Type a career and press Enter or Add" 
+                  className="form-input w-full"
+                  value={careerInput}
+                  onChange={e => {
+                    setCareerInput(e.target.value);
+                    setShowCareerDropdown(true);
+                  }}
+                  onFocus={() => setShowCareerDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowCareerDropdown(false), 200)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && careerInput.trim()) {
+                      e.preventDefault();
+                      if (!profile.careerPreferences.includes(careerInput.trim())) {
+                        setProfile({ ...profile, careerPreferences: [...profile.careerPreferences, careerInput.trim()] });
+                      }
+                      setCareerInput('');
+                      setShowCareerDropdown(false);
                     }
-                    setCareerInput('');
-                  }
-                }}
-              />
+                  }}
+                />
+                {showCareerDropdown && careersList.filter(c => c.toLowerCase().includes(careerInput.toLowerCase()) && !profile.careerPreferences.includes(c)).length > 0 && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, maxHeight: '200px', overflowY: 'auto', background: 'rgba(20, 20, 30, 0.95)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.5rem', zIndex: 50, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)', marginTop: '4px' }}>
+                    {careersList.filter(c => c.toLowerCase().includes(careerInput.toLowerCase()) && !profile.careerPreferences.includes(c)).map((career, index) => (
+                      <div 
+                        key={`career-drop-${index}`} 
+                        style={{ padding: '0.75rem 1rem', cursor: 'pointer', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background 0.2s', fontSize: '0.875rem' }}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          if (!profile.careerPreferences.includes(career)) {
+                            setProfile({ ...profile, careerPreferences: [...profile.careerPreferences, career] });
+                          }
+                          setCareerInput('');
+                          setShowCareerDropdown(false);
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {career}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button 
                 type="button" 
                 className="btn btn-outline"
@@ -369,7 +441,7 @@ const AcademicProfile = () => {
               </button>
             </div>
             <div className="mt-2 text-muted" style={{ fontSize: '0.75rem' }}>
-              Suggestions: {careersList.filter(c => !profile.careerPreferences.includes(c)).map(c => (
+              Suggestions: {careersList.filter(c => !profile.careerPreferences.includes(c)).slice(0, 5).map(c => (
                 <span key={c} style={{ cursor: 'pointer', marginRight: '8px', textDecoration: 'underline' }} onClick={() => setProfile({ ...profile, careerPreferences: [...profile.careerPreferences, c] })}>{c}</span>
               ))}
             </div>

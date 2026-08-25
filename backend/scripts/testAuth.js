@@ -530,10 +530,16 @@ async function run() {
 
   // ─── CLEANUP ───────────────────────────────────────────────────────
 
+  const testUserEmails = [testEmail, `admin_${ts}@example.com`];
+  const testUsers = await mongoose.connection.db.collection('users').find({ email: { $in: testUserEmails } }).toArray();
+  const testUserIds = testUsers.map(u => u._id);
+
   await mongoose.connection.db.collection('users').deleteMany({
-    email: { $in: [testEmail, `admin_${ts}@example.com`] }
+    _id: { $in: testUserIds }
   });
-  await mongoose.connection.db.collection('academicprofiles').deleteMany({});
+  await mongoose.connection.db.collection('academicprofiles').deleteMany({
+    userId: { $in: testUserIds }
+  });
   await mongoose.disconnect();
 
   console.log(`\n=== RESULTS: ${passed} passed, ${failed} failed ===\n`);

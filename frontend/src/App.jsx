@@ -12,6 +12,9 @@ import AcademicProfile from './pages/AcademicProfile';
 import Recommendations from './pages/Recommendations';
 import SkillGap from './pages/SkillGap';
 import Roadmap from './pages/Roadmap';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminManagement from './pages/admin/AdminManagement';
+import AdminRoute from './components/AdminRoute';
 
 function App() {
   return (
@@ -34,6 +37,16 @@ function App() {
             <Route path="recommendations" element={<Recommendations />} />
             <Route path="skill-gap" element={<SkillGap />} />
             <Route path="roadmap" element={<Roadmap />} />
+          </Route>
+
+          {/* Admin Routes (Uses Layout but protected by AdminRoute) */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <Layout />
+            </AdminRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path=":dataset" element={<AdminManagement />} />
           </Route>
 
           {/* Fallback */}

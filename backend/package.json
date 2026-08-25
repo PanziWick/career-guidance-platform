@@ -8,7 +8,8 @@
     "seed": "node scripts/seedDatabase.js",
     "reset-db": "node scripts/resetDatabase.js && npm run seed",
     "test:m4": "node scripts/testEducationalData.js",
-    "test:all": "node scripts/testAuth.js && node scripts/testEducationalData.js && node scripts/testRecommendation.js && node scripts/testSkillGap.js"
+    "test:admin": "node scripts/testAdmin.js",
+    "test:all": "node scripts/testAuth.js && node scripts/testEducationalData.js && node scripts/testRecommendation.js && node scripts/testSkillGap.js && node scripts/testAdmin.js"
   },
   "keywords": [],
   "author": "",

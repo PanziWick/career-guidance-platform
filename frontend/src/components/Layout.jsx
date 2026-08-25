@@ -7,7 +7,8 @@ import {
   Lightbulb, 
   Target, 
   Map, 
-  LogOut 
+  LogOut,
+  Shield
 } from 'lucide-react';
 
 const Layout = () => {
@@ -52,6 +53,13 @@ const Layout = () => {
             <Map size={20} />
             <span>Learning Roadmap</span>
           </NavLink>
+
+          {user?.role === 'admin' && (
+            <NavLink to="/admin" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+              <Shield size={20} />
+              <span>Admin Panel</span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="mt-8 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>

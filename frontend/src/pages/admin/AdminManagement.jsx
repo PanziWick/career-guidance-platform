@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, '') : 'http://localhost:5000';
 import { useParams } from 'react-router-dom';
 
 const datasetConfigs = {
@@ -119,7 +120,7 @@ const AdminManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000${config.endpoint}`, {
+      const response = await axios.get(`${BASE_URL}${config.endpoint}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setData(response.data.data);
@@ -179,11 +180,11 @@ const AdminManagement = () => {
 
     try {
       if (modalMode === 'create') {
-        await axios.post(`http://localhost:5000${config.endpoint}`, submitData, {
+        await axios.post(`${BASE_URL}${config.endpoint}`, submitData, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
       } else {
-        await axios.put(`http://localhost:5000${config.endpoint}/${currentRecord._id}`, submitData, {
+        await axios.put(`${BASE_URL}${config.endpoint}/${currentRecord._id}`, submitData, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
       }
@@ -196,7 +197,7 @@ const AdminManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:5000${config.endpoint}/${recordToDelete._id}`, {
+      await axios.delete(`${BASE_URL}${config.endpoint}/${recordToDelete._id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setIsDeleteModalOpen(false);

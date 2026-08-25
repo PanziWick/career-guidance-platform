@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, '') : 'http://localhost:5000';
 import { useAuth } from '../../context/AuthContext';
 import { 
   Building, 
@@ -21,7 +22,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/admin/dashboard-stats', {
+        const response = await axios.get(`${BASE_URL}/api/admin/dashboard-stats`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }

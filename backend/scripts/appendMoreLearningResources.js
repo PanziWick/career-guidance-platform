@@ -8,8 +8,8 @@ const moreResources = [
     ResourceID: 'R009',
     SkillID: 'S002', // Critical Thinking
     Title: 'Critical Thinking Skills',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/leadership-management/critical-thinking',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/critical-thinking-skills',
     Type: 'Course',
     Level: 'Beginner',
     Access: 'Free',
@@ -18,68 +18,68 @@ const moreResources = [
   {
     ResourceID: 'R010',
     SkillID: 'S003', // Leadership
-    Title: 'Leadership and Followership',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/leadership-management/leadership-and-followership',
-    Type: 'Course',
-    Level: 'Intermediate',
-    Access: 'Free',
-    Duration: '8 hours'
+    Title: 'Leadership Courses',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/courses?query=leadership',
+    Type: 'Course Catalog',
+    Level: 'Mixed',
+    Access: 'Mixed',
+    Duration: 'Variable'
   },
   {
     ResourceID: 'R011',
     SkillID: 'S006', // Public Speaking
-    Title: 'Learning to Teach, Learning to Speak',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/education-development/learning-teach-learning-speak',
-    Type: 'Course',
-    Level: 'Beginner',
-    Access: 'Free',
-    Duration: '4 hours'
-  },
-  {
-    ResourceID: 'R012',
-    SkillID: 'S007', // Research
-    Title: 'Understanding Health and Social Care Research',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/health-sports-psychology/health/understanding-health-and-social-care-research',
-    Type: 'Course',
-    Level: 'Intermediate',
-    Access: 'Free',
-    Duration: '15 hours'
-  },
-  {
-    ResourceID: 'R013',
-    SkillID: 'S008', // Problem Solving
-    Title: 'Problem Solving and Decision Making',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/leadership-management/problem-solving-and-decision-making',
+    Title: 'Introduction to Public Speaking',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/public-speaking',
     Type: 'Course',
     Level: 'Beginner',
     Access: 'Free',
     Duration: '12 hours'
   },
   {
-    ResourceID: 'R014',
-    SkillID: 'S009', // Teamwork
-    Title: 'Working in Teams',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/leadership-management/working-teams',
+    ResourceID: 'R012',
+    SkillID: 'S007', // Research
+    Title: 'Understanding Research Methods',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/research-methods',
+    Type: 'Course',
+    Level: 'Intermediate',
+    Access: 'Free',
+    Duration: '20 hours'
+  },
+  {
+    ResourceID: 'R013',
+    SkillID: 'S008', // Problem Solving
+    Title: 'Effective Problem-Solving and Decision-Making',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/problem-solving',
     Type: 'Course',
     Level: 'Beginner',
     Access: 'Free',
     Duration: '15 hours'
   },
   {
-    ResourceID: 'R015',
-    SkillID: 'S010', // Writing Skills
-    Title: 'English: Skills for Learning',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/education-development/english-skills-learning',
+    ResourceID: 'R014',
+    SkillID: 'S009', // Teamwork
+    Title: 'Teamwork Skills: Communicating Effectively in Groups',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/teamwork-skills-effective-communication',
     Type: 'Course',
     Level: 'Beginner',
     Access: 'Free',
-    Duration: '24 hours'
+    Duration: '10 hours'
+  },
+  {
+    ResourceID: 'R015',
+    SkillID: 'S010', // Writing Skills
+    Title: 'Business Writing',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/business-writing',
+    Type: 'Course',
+    Level: 'Beginner',
+    Access: 'Free',
+    Duration: '13 hours'
   },
   {
     ResourceID: 'R016',
@@ -96,34 +96,34 @@ const moreResources = [
     ResourceID: 'R017',
     SkillID: 'S013', // Creative Content Production
     Title: 'Digital Storytelling',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/history-the-arts/digital-storytelling',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/digital-storytelling',
     Type: 'Course',
     Level: 'Beginner',
     Access: 'Free',
-    Duration: '20 hours'
+    Duration: '16 hours'
   },
   {
     ResourceID: 'R018',
     SkillID: 'S017', // Intercultural Communication
-    Title: 'Intercultural Competence in the Workplace',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/languages/intercultural-competence-the-workplace',
+    Title: 'Intercultural Communication and Conflict Resolution',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/intercultural-communication',
     Type: 'Course',
     Level: 'Intermediate',
     Access: 'Free',
-    Duration: '12 hours'
+    Duration: '10 hours'
   },
   {
     ResourceID: 'R019',
     SkillID: 'S018', // Professional Ethics
     Title: 'Business Ethics',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/business-ethics',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/business-ethics',
     Type: 'Course',
     Level: 'Intermediate',
     Access: 'Free',
-    Duration: '5 hours'
+    Duration: '8 hours'
   }
 ];
 

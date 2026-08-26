@@ -52,45 +52,45 @@ const resources = [
     ResourceID: 'R005',
     SkillID: 'S012', // Legal Research & Drafting
     Title: 'Introduction to Law',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/society-politics-law/law',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/law-student',
     Type: 'Course',
     Level: 'Beginner',
     Access: 'Free',
-    Duration: ''
+    Duration: '14 hours'
   },
   {
     ResourceID: 'R006',
     SkillID: 'S014', // Qualitative Data Analysis
-    Title: 'Data Analysis in Business',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/qualitative-data-analysis',
+    Title: 'Qualitative Research Methods',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/qualitative-research',
     Type: 'Course',
     Level: 'Intermediate',
     Access: 'Free',
-    Duration: '10 hours'
+    Duration: '18 hours'
   },
   {
     ResourceID: 'R007',
     SkillID: 'S015', // Conflict Resolution & Mediation
-    Title: 'Conflict Resolution',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/leadership-management/conflict-resolution',
+    Title: 'Conflict Resolution Skills',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/learn/conflict-resolution-skills',
     Type: 'Course',
     Level: 'Intermediate',
     Access: 'Free',
-    Duration: '6 hours'
+    Duration: '12 hours'
   },
   {
     ResourceID: 'R008',
     SkillID: 'S001', // Communication
-    Title: 'Effective Communication',
-    Provider: 'OpenLearn',
-    URL: 'https://www.open.edu/openlearn/money-business/leadership-management/effective-communication-the-workplace',
-    Type: 'Course',
-    Level: 'Beginner',
-    Access: 'Free',
-    Duration: '12 hours'
+    Title: 'Communication Skills Courses',
+    Provider: 'Coursera',
+    URL: 'https://www.coursera.org/courses?query=communication',
+    Type: 'Course Catalog',
+    Level: 'Mixed',
+    Access: 'Mixed',
+    Duration: 'Variable'
   }
 ];
 

@@ -8,6 +8,11 @@ router.use(authenticate, authorise('admin'));
 
 router.get('/dashboard-stats', adminController.getDashboardStats);
 
+// Users
+router.get('/users', adminController.getUsers);
+router.get('/users/:id', adminController.getUser);
+router.patch('/users/:id/toggle-status', adminController.toggleUserStatus);
+
 // Universities
 router.route('/universities')
   .get(adminController.getUniversities)

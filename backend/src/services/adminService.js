@@ -5,6 +5,7 @@ const Skill = require('../models/Skill');
 const CareerMapping = require('../models/CareerMapping');
 const LearningResource = require('../models/LearningResource');
 const RecommendationRule = require('../models/RecommendationRule');
+const User = require('../models/User');
 const AppError = require('../utils/AppError');
 
 class AdminService {
@@ -16,7 +17,10 @@ class AdminService {
       skills,
       careerMappings,
       learningResources,
-      recommendationRules
+      recommendationRules,
+      totalUsers,
+      activeUsers,
+      inactiveUsers
     ] = await Promise.all([
       University.countDocuments(),
       DegreeProgramme.countDocuments(),
@@ -24,7 +28,10 @@ class AdminService {
       Skill.countDocuments(),
       CareerMapping.countDocuments(),
       LearningResource.countDocuments(),
-      RecommendationRule.countDocuments()
+      RecommendationRule.countDocuments(),
+      User.countDocuments(),
+      User.countDocuments({ isActive: true }),
+      User.countDocuments({ isActive: false })
     ]);
 
     return {
@@ -34,8 +41,59 @@ class AdminService {
       skills,
       careerMappings,
       learningResources,
-      recommendationRules
+      recommendationRules,
+      users: { total: totalUsers, active: activeUsers, inactive: inactiveUsers }
     };
+  }
+
+  // --- Users ---
+  async getUsers(query = {}) {
+    const filter = {};
+
+    // Filter by role if provided
+    if (query.role && ['student', 'admin'].includes(query.role)) {
+      filter.role = query.role;
+    }
+
+    // Filter by active status if provided
+    if (query.status === 'active') {
+      filter.isActive = true;
+    } else if (query.status === 'inactive') {
+      filter.isActive = false;
+    }
+
+    // Search by name or email
+    if (query.search) {
+      const searchRegex = new RegExp(query.search, 'i');
+      filter.$or = [
+        { firstName: searchRegex },
+        { lastName: searchRegex },
+        { email: searchRegex }
+      ];
+    }
+
+    return User.find(filter).sort({ createdAt: -1 });
+  }
+
+  async getUserById(id) {
+    const user = await User.findById(id);
+    if (!user) throw new AppError('User not found', 404);
+    return user;
+  }
+
+  async toggleUserStatus(id, adminUserId) {
+    // Prevent admins from deactivating themselves
+    if (id === adminUserId) {
+      throw new AppError('You cannot deactivate your own account', 400);
+    }
+
+    const user = await User.findById(id);
+    if (!user) throw new AppError('User not found', 404);
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    return user;
   }
 
   // --- Universities ---

@@ -14,6 +14,7 @@ import SkillGap from './pages/SkillGap';
 import Roadmap from './pages/Roadmap';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminManagement from './pages/admin/AdminManagement';
+import UserManagement from './pages/admin/UserManagement';
 import AdminRoute from './components/AdminRoute';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
             </AdminRoute>
           }>
             <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
             <Route path=":dataset" element={<AdminManagement />} />
           </Route>
 

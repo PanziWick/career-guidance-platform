@@ -312,6 +312,7 @@ const AcademicProfile = () => {
                     setSkillInput(e.target.value);
                     setShowSkillDropdown(true);
                   }}
+                  onClick={() => setShowSkillDropdown(true)}
                   onFocus={() => setShowSkillDropdown(true)}
                   onBlur={() => setTimeout(() => setShowSkillDropdown(false), 200)}
                   onKeyDown={e => {
@@ -391,6 +392,7 @@ const AcademicProfile = () => {
                     setCareerInput(e.target.value);
                     setShowCareerDropdown(true);
                   }}
+                  onClick={() => setShowCareerDropdown(true)}
                   onFocus={() => setShowCareerDropdown(true)}
                   onBlur={() => setTimeout(() => setShowCareerDropdown(false), 200)}
                   onKeyDown={e => {

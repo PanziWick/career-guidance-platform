@@ -10,7 +10,8 @@ import {
   Award, 
   GitMerge, 
   BookOpen, 
-  Settings 
+  Settings,
+  Users 
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -43,6 +44,13 @@ const AdminDashboard = () => {
   if (error) return <div className="alert-error animate-fade-in">{error}</div>;
 
   const cards = [
+    { 
+      title: 'Users', 
+      count: stats?.users?.total, 
+      link: '/admin/users',
+      icon: <Users size={24} />,
+      subtitle: `${stats?.users?.active || 0} active · ${stats?.users?.inactive || 0} inactive`
+    },
     { 
       title: 'Universities', 
       count: stats?.universities, 
@@ -111,6 +119,11 @@ const AdminDashboard = () => {
               <div className="stat-value mb-6">
                 {card.count || 0}
               </div>
+              {card.subtitle && (
+                <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: '-1rem', marginBottom: '0.5rem' }}>
+                  {card.subtitle}
+                </div>
+              )}
             </div>
             
             <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>

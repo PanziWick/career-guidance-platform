@@ -10,6 +10,38 @@ class AdminController {
     }
   }
 
+  // --- Users ---
+  async getUsers(req, res, next) {
+    try {
+      const users = await adminService.getUsers(req.query);
+      res.status(200).json({ status: 'success', data: users });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUser(req, res, next) {
+    try {
+      const user = await adminService.getUserById(req.params.id);
+      res.status(200).json({ status: 'success', data: user });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async toggleUserStatus(req, res, next) {
+    try {
+      const user = await adminService.toggleUserStatus(req.params.id, req.user._id.toString());
+      res.status(200).json({
+        status: 'success',
+        data: user,
+        message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // --- Universities ---
   async getUniversities(req, res, next) {
     try {

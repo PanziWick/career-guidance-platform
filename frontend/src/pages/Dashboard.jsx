@@ -9,6 +9,11 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState(null);
   const [recentRecs, setRecentRecs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isNewUser] = useState(() => {
+    const flag = sessionStorage.getItem('isNewUser');
+    if (flag) sessionStorage.removeItem('isNewUser');
+    return !!flag;
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,9 +53,9 @@ const Dashboard = () => {
         <div style={{ background: 'var(--color-primary)', padding: '1rem', borderRadius: '50%', boxShadow: '0 0 20px rgba(99, 102, 241, 0.4)' }}>
           <UserCircle size={48} color="white" />
         </div>
-        <div>
+       <div>
           <h1 style={{ marginBottom: '0.5rem', fontSize: '2.5rem', background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Welcome back, {user?.firstName || 'User'}!
+            {isNewUser ? 'Welcome' : 'Welcome back'}, {user?.firstName || 'User'}!
           </h1>
           <p className="text-muted" style={{ fontSize: '1.1rem' }}>Your personal higher education and career pathway dashboard.</p>
         </div>

@@ -125,7 +125,7 @@ const SkillGap = () => {
             <div className="text-right flex items-center gap-4">
               <div className="text-right">
                 <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary-light)', lineHeight: 1 }}>
-                  {gapData.matchPercentage}%
+                  {gapData.completionPercentage}%
                 </div>
                 <p className="text-muted text-sm mt-1">Skill Match Score</p>
               </div>

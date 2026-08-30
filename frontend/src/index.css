@@ -121,6 +121,31 @@ h3 { font-size: 1.5rem; }
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-text-main);
+}
+
+
 /* Buttons */
 .btn {
   display: inline-flex;

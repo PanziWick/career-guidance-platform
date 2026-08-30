@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn } from 'lucide-react';
+import { LogIn, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -51,14 +52,25 @@ const Login = () => {
           
           <div className="form-group mb-6">
             <label className="form-label" htmlFor="password">Password</label>
-            <input 
-              type="password" 
-              id="password"
-              className="form-input" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
+            <div className="password-input-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                id="password"
+                className="form-input" 
+                style={{ paddingRight: '2.5rem' }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           
           <button type="submit" className="btn btn-primary w-full" disabled={loading}>

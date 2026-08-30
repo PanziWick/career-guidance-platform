@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const Register = () => {
     password: '',
   });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -69,7 +70,26 @@ const Register = () => {
           
           <div className="form-group mb-6">
             <label className="form-label" htmlFor="password">Password (Min. 6 chars)</label>
-            <input type="password" id="password" className="form-input" value={formData.password} onChange={handleChange} required minLength={6} />
+            <div className="password-input-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                id="password" 
+                className="form-input" 
+                style={{ paddingRight: '2.5rem' }}
+                value={formData.password} 
+                onChange={handleChange} 
+                required 
+                minLength={6} 
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           
           <button type="submit" className="btn btn-primary w-full" disabled={loading}>
